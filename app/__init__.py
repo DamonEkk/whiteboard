@@ -1,5 +1,6 @@
 from flask import flask
 from flask_socketio import SocketIO
+from flask import render_template
 
 #boilerplate stuff
 
@@ -21,3 +22,13 @@ def start_app():
 
     return app
 
+# initialise db here
+
+
+@app.errorhandler(404)
+def not_found(e):
+    return render_template("404.html")
+
+@app.errorhandler(500)
+def internal(e):
+    return render_template("500.html")
