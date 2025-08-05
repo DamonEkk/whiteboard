@@ -1,0 +1,53 @@
+# === Python ===
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+
+# === Virtual Environment ===
+.venv/
+env/
+ENV/
+venv/
+pip-wheel-metadata/
+
+# === Environment Variables ===
+.env
+.env.*
+
+# === VSCode / IDEs ===
+.vscode/
+.idea/
+
+# === OS Files ===
+.DS_Store
+Thumbs.db
+
+# === Logs and dumps ===
+*.log
+*.sqlite3
+*.db
+*.bak
+
+# === Docker ===
+*.tar
+*.pid
+
+# === Pytest cache ===
+.pytest_cache/
+.coverage
+
+# === Jupyter Notebooks ===
+.ipynb_checkpoints/
+
+# === MyPy ===
+.mypy_cache/
+
+# === Build directories ===
+build/
+dist/
+*.egg-info/
+
+# === Others ===
+__pypackages__/
