@@ -8,45 +8,134 @@
 				width: 100%;
 				height: 80vh;
 			}
+
+			.selection-form{
+				display: flex;
+				align-items: center;
+				padding-bottom: 10px;
+			}
+			#selection-area {
+				display:flex; 
+				gap: 1rem;
+				align-items: center;
+				justify-content: center;
+				flex-grow:1;
+			}
+
 		</style>
 	</head>
 	<body>
+		<form class="selection-form">
+			<button type="button" for="export" name="Export">Export</button>
+			<div id="selection-area">
+				<label for="size" >Size</label>
+				<input type="number" id="size" name="size" value="6"><br><br>
+				<label for="colour">Colour</label>
+				<select id=colour name="colour" value="black">
+					<option value="black">Black</option>
+					<option value="white">White</option>
+					<option value="red">Red</option>
+					<option value="blue">Blue</option>
+					<option value="green">Green</option>
+					<option value="yellow">Yellow</option>
+					<option value="purple">Purple</option>
+					<option value="pink">Pink</option>
+				</select>
+				<button type="button" for="undo" name="Undo">Undo</button>
+			</div>
+		</form>
 		<canvas id="room-0"></canvas>
 		<script>
 
 			const canvas = document.getElementById("room-0");
+			const sizeInput = document.getElementById("size");
+			const colourSelect = document.getElementById("colour");
 			const ctx = canvas.getContext("2d");
+			const undo = document.querySelector('button[name="Undo"]');
 
 			canvas.width = canvas.offsetWidth;
 			canvas.height = canvas.offsetHeight;
 
 			let drawing = false; // Drawing is disabled when we arnt holding mousedown
-			let draw_size = 6;
+			let drawSize = 6;
+			let idNum = 0;
+			let drawColour = colourSelect.value;
+			let stroke = []; // current stroke points
+			let history = []; // History used for undo functionality
+		    	ctx.lineCap = "round";
 
-			// Hold mouse down
+
+			undo.addEventListener("click", () => {
+				console.log(history);
+			});
+
+
+			// Changes the colour event. 
+			colourSelect.addEventListener("change", () => {
+				drawColour = colourSelect.value;
+			});
+
+
+			// Changes the size of the brush event.
+			sizeInput.addEventListener("change", () => {
+				drawSize = parseInt(sizeInput.value);
+			});
+
+
+			// prevents enter from resetting the page, not the best fix for it.
+			document.querySelector(".selection-form").addEventListener("submit", (e) => {
+ 				 e.preventDefault(); 
+			});
+
+			
+			// Hold mouse down and enables drawing.
 			canvas.addEventListener("mousedown", () => {
 				drawing = true;
 				ctx.beginPath();
 			});
 			
-			// Stop Drawing
+
+			// Stop Drawing when you let go of mouse.
 			canvas.addEventListener("mouseup", () => {
             			drawing = false;
-				ctx.beginPath();
+
+				// For saving keystrokes, used for websockets and undo.
+				let currentStroke = {
+					strokeId: generate_stroke_ID(),
+					colour: drawColour,
+					size: drawSize,
+					points: stroke
+				}
+				stroke = [];
+				history.push(currentStroke);
+
+				
         		});
 			
-			// Drawing mechanic
+
+			// Drawing mechanic when drawing it true and mouse is moving.
 			canvas.addEventListener("mousemove", (e) => {
 		    		if (!drawing) return;
-		    		ctx.lineWidth = draw_size; // Size 
-		    		ctx.lineCap = "round";
-		    		ctx.strokeStyle = "black";
+				ctx.lineWidth = drawSize; // Size 
+				ctx.strokeStyle = drawColour;	
+
+
+				let point = [e.offsetX, e.offsetY]
+
+				stroke.push(point)
 
 		    		ctx.lineTo(e.offsetX, e.offsetY);
 		    		ctx.stroke();
-		    		ctx.beginPath();
 		    		ctx.moveTo(e.offsetX, e.offsetY);
 			});
+
+			function generate_stroke_ID(){
+				return idNum++;	
+			}
+
+			function removed_stroke_ID(){
+				idNum--;
+			}
 
 
 
