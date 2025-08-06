@@ -28,6 +28,7 @@
 		<form class="selection-form">
 			<button type="button" for="export" name="Export">Export</button>
 			<div id="selection-area">
+				<button type="button" name="clear" id="clear">Clear</button>
 				<label for="size" >Size</label>
 				<input type="number" id="size" name="size" value="6"><br><br>
 				<label for="colour">Colour</label>
@@ -41,105 +42,10 @@
 					<option value="purple">Purple</option>
 					<option value="pink">Pink</option>
 				</select>
-				<button type="button" for="undo" name="Undo">Undo</button>
+				<button type="button" for="undo" name="Undo" id="undo">Undo</button>
 			</div>
 		</form>
 		<canvas id="room-0"></canvas>
-		<script>
-
-			const canvas = document.getElementById("room-0");
-			const sizeInput = document.getElementById("size");
-			const colourSelect = document.getElementById("colour");
-			const ctx = canvas.getContext("2d");
-			const undo = document.querySelector('button[name="Undo"]');
-
-			canvas.width = canvas.offsetWidth;
-			canvas.height = canvas.offsetHeight;
-
-			let drawing = false; // Drawing is disabled when we arnt holding mousedown
-			let drawSize = 6;
-			let idNum = 0;
-			let drawColour = colourSelect.value;
-			let stroke = []; // current stroke points
-			let history = []; // History used for undo functionality
-		    	ctx.lineCap = "round";
-
-
-			undo.addEventListener("click", () => {
-				console.log(history);
-			});
-
-
-			// Changes the colour event. 
-			colourSelect.addEventListener("change", () => {
-				drawColour = colourSelect.value;
-			});
-
-
-			// Changes the size of the brush event.
-			sizeInput.addEventListener("change", () => {
-				drawSize = parseInt(sizeInput.value);
-			});
-
-
-			// prevents enter from resetting the page, not the best fix for it.
-			document.querySelector(".selection-form").addEventListener("submit", (e) => {
- 				 e.preventDefault(); 
-			});
-
-			
-			// Hold mouse down and enables drawing.
-			canvas.addEventListener("mousedown", () => {
-				drawing = true;
-				ctx.beginPath();
-			});
-			
-
-			// Stop Drawing when you let go of mouse.
-			canvas.addEventListener("mouseup", () => {
-            			drawing = false;
-
-				// For saving keystrokes, used for websockets and undo.
-				let currentStroke = {
-					strokeId: generate_stroke_ID(),
-					colour: drawColour,
-					size: drawSize,
-					points: stroke
-				}
-				stroke = [];
-				history.push(currentStroke);
-
-				
-        		});
-			
-
-			// Drawing mechanic when drawing it true and mouse is moving.
-			canvas.addEventListener("mousemove", (e) => {
-		    		if (!drawing) return;
-				ctx.lineWidth = drawSize; // Size 
-				ctx.strokeStyle = drawColour;	
-
-
-				let point = [e.offsetX, e.offsetY]
-
-				stroke.push(point)
-
-		    		ctx.lineTo(e.offsetX, e.offsetY);
-		    		ctx.stroke();
-		    		ctx.moveTo(e.offsetX, e.offsetY);
-			});
-
-			function generate_stroke_ID(){
-				return idNum++;	
-			}
-
-			function removed_stroke_ID(){
-				idNum--;
-			}
-
-
-
-		</script>	
-
+		<script src="{{ url_for('static', filename='canvas.js') }}"></script>
 	</body>
 </html>
