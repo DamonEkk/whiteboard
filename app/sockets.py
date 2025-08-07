@@ -3,15 +3,6 @@ from flask import request
 
 def socket_event_handler(socketio):
 
-    @socketio.on('connect')
-    def handle_connect():
-        print("connection")
-        # HERE is where we want to start the login process and establish that logic.
-    
-    @socketio.on('disconnect')
-    def handle_disconnect():
-        print(f"disconnected {request.sid}")
-    
     @socketio.on('draw')
     def handle_draw():
         print("draw not ready")
@@ -20,9 +11,6 @@ def socket_event_handler(socketio):
     def handle_colour():
         print("colour not ready")
 
-    @socketio.on('export')
-    def handle_export():
-        print("export not read")
 
     @socketio.on('sync-canvas')
     def handle_sync_canvas():
@@ -32,7 +20,8 @@ def socket_event_handler(socketio):
     def handle_clear_canvas():
         print("clearing canvas")
         # needs to clear canvas for all and clear history array
-
+    
+    @socketio.on('undo-canvas')
     def handle_undo():
         print("undoing")
         # Needs to clear canvas and redraw global history except client (who undid) history[-1]
