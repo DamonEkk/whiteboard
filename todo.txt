@@ -1,0 +1,9 @@
+TODO
+
+- Multiple whiteboards
+- Export into pdf
+- Multiplayer
+- Save strokes to player
+- Save pages to player
+
+- CTRL Z functionality

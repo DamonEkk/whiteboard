@@ -1,3 +1,2 @@
-flask,
-mariadb,
-python, 
+Flask
+flask-socketio
