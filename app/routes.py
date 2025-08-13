@@ -28,8 +28,9 @@ def create_user():
     return "Success"
 
 
-@main.route("/room", methods=["POST"])
-def create_room():
+@main.route("/room/<username>", methods=["POST"])
+def create_room(username):
+
     return 0
 
 

@@ -4,6 +4,18 @@
 		<title>Home</title>
 	</head>
 	<body>
-		<h1>Welcome to the home page</h1>
+			<form>
+				<h1>Welcome to whiteboard</h1>
+				<h2>Please sign in</h2>
+				<label>Username</label>
+				<input id="userInput"></input>
+				<input id="passInput"></input>
+				<label>Password</label>
+				<button type="button">Sign in</button>
+				<button type="button" id="guestLog">Continue as Guest</button>
+			</form>
+
+			<script src="{{ url_for('static', filename='home.js') }}"></script>
+			
 	</body>
 </html>

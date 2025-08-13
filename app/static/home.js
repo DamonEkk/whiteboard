@@ -1,0 +1,6 @@
+
+
+
+guestLog.addEventListener("click", () => {
+
+});
