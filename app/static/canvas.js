@@ -67,6 +67,7 @@ let currentStroke = {
 	colour: drawColour,
 	size: drawSize,
 	points: stroke
+	room: 
 }
 stroke = [];
 history.push(currentStroke);

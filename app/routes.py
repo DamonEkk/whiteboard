@@ -48,3 +48,7 @@ def get_users(roomNum):
 @main.route("/user/<username>", methods=["DELETE"])
 def delete_user(username):
     return 0
+
+@main.route("/room/<pageJSN>", methods=["GET"])
+def get_page_json(pageJSN):
+    return "Success" 
