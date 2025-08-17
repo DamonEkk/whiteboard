@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, jsonify
-import Users.py
+from Users import generate_token, users_map
 
 # The file is all about routing traffic to the correct urls
-# Ai was used for some of the more complicated routing like roomNum
+# Ai was used for some of the boilery-plate stuff. 
 
 
 main = Blueprint('main', __name__)
@@ -28,15 +28,16 @@ def create_user():
     # call create user login.
     return "Success"
 
-@main.route("/users" methods=["GET", "POST"])
-async def login():
-    data = await request.json()
+@main.route("/users", methods=["POST"])
+def login():
+    data = request.get_json()
     username = data.get("username")
     password = data.get("password")
+    user = users_map.get(username)
     if not user or user["password"] != password:
-        raise HTTPExpection(status_code=401, "Incorrect user or password")
+        abort(401, description="Incorrect user or password")    
     token = generate_token(username)
-    return 
+    return jsonify({"token": token})
 
 
 

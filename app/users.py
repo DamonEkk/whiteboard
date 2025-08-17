@@ -1,76 +1,43 @@
-from enum import Enum
 import jwt
-import datetime
+from datetime import datetime, timedelta, timezone
 import os
-from __init__.py import app
-
-directoryPath = os.path(os.path.dirname(__file__), "templates")
-app.mount("/templates", Staticfiles(directory=directoryPath), name="templates")
-security = HTTPBearer()
+from __init__ import app
 
 
-guestNum = 0
-
-class Permission(Enum):
-    USER = "user"
-    ADMIN = "admin"
-    GUEST = "guest"
-
-
-class Account:
-    def __init__(self, username: str, password: str, email: str, permission: Permission):
-        self.username = username
-        self.password = password
-        self.email = email
-        self.permission = permission
-
-
-    def setPermission(self, permission):
-        self.permission = permission
-
-    def getPermission(self):
-        return self.permission 
-
-
-    def selected_guest():
-        global guestNum
-        guest = Account("guest" + str(guestNum), "", "", Permission.GUEST)
-        guestNum += 1
-
-        
-    def create_account(username, password, email):
-        account = Account(username, password, email, Permission.USER)
-    
-
-user = Account("user", "user123", "user@user.com", Permission.USER)
-admin = Account("admin", "admin123", "admin@admin.com", Permission.ADMIN)
-
-
-users_map = {"user": user,
-              "admin": admin}
+users_map = {"user": {"password": "user123", "role": "USER"},
+             "admin": {"password": "admin123", "role": "ADMIN"}
+            }
 
 #Reference to week 4 practical from Alan
-def generate_token():
+def generate_token(username):
+    user = users_map.get(username)
+    if not user:
+        return None
+
     payload = {
         'username': username,
-        'exp': datetime.datetime.now(timezone.utc) + datetime.timedelta(minutes=20)
+        'role': user["role"],
+        'exp': datetime.now(timezone.utc) + timedelta(minutes=20)
     }
     token = jwt.encode(payload, app.secret_key, algorithm="HS256")
     return token
 
-#Reference to week 4 practical from Alan
-def auth_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    if not credentials or not credentials.scheme == "Bearer":
-        raise HTTPException(status_code=401, details="unauthorized")
 
-    token = credentials.credentials
+def verify_token(token: str):
     try:
-        user = jwt.decode(token, app.secret_key, algorithm=["HS256"])
-        return user
-
+        decoded = jwt.decode(token, app.secret_key, algorithms=["HS256"])
+        return decoded
     except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="expired token")
+        return None
     except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="invalid token")
+        return None
 
 
+def guest_login():
+    payload = {
+        'username': "Guest" + str(int(datetime.now().timestamp()) >> 4),
+        'role': "guest",
+        'exp': datetime.now(timezone.utc) + timedelta(minutes=20)
+    }
+    token = jwt.encode(payload, app.secret_key, algorithm="HS256")
+    return token
