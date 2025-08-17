@@ -11,37 +11,37 @@ document.getElementById("login").addEventListener("submit", async function(e) {
 		    headers: {
 			"Content-Type": "application/json"
 		    },
-		    body: JSON.stringify({ username, password });
+		    body: JSON.stringify({ username, password })
 		}
 
-		const data = await response.json
+		const data = await response.json()
 		if (!response.ok){
 			// Display error message to user
 			return;
 		}
 
 		const token = data.token;
-		localStorage.setItem("jwt_token", token);
+		localStorage.setItem("token", token);
 
 		const payload = JSON.parse(atob(token.split('.')[1])); 
-		switch (payload){
+		switch (payload.role){
 			case "ADMIN":
-				window.location.href = "/"
+				window.location.href = "/adminLogged"
 				break;
 			case "USER":
-				window.location.href = "/"
+				window.location.href = "/userLogged"
 				break;
 			case "GUEST":
-				window.location.href = "/"
+				window.location.href = "/guestLogged"
 				break;
 			default:
-				window.location.href = "/"
+				window.location.href = "/guestLogged"
 		}
 
 	}
 
 	catch (e){
-		window.location.href = "/501"	
+		window.location.href = "/500"	
 	}
 	
 });
