@@ -1,7 +1,7 @@
 import jwt
 from datetime import datetime, timedelta, timezone
 import os
-from __init__ import app
+from .__init__ import app
 
 
 users_map = {"user": {"password": "user123", "role": "USER"},
