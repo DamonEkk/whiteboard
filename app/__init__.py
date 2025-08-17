@@ -2,6 +2,8 @@ from flask import Flask
 from flask_socketio import SocketIO
 from flask import render_template
 
+app = 0;
+
 #boilerplate stuff
 
 socketio = SocketIO()
