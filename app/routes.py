@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, jsonify
-from users import generate_token, users_map
+from .users import generate_token, users_map
 
 # The file is all about routing traffic to the correct urls
 # Ai was used for some of the boilery-plate stuff. 
