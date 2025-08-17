@@ -2,6 +2,8 @@
 document.getElementById("login").addEventListener("submit", async function(e) {
 	e.preventDefault();
 
+	console.log("button hit");
+
 	let username = document.getElementById("username").value;
 	let password = document.getElementById("password").value;
 
@@ -17,11 +19,13 @@ document.getElementById("login").addEventListener("submit", async function(e) {
 		const data = await response.json()
 		if (!response.ok){
 			// Display error message to user
+			console.log("login failed")
 			return;
 		}
 
 		const token = data.token;
 		localStorage.setItem("token", token);
+		console.log("login success");
 
 		const payload = JSON.parse(atob(token.split('.')[1])); 
 		switch (payload.role){
