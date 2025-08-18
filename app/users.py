@@ -19,13 +19,13 @@ def generate_token(username):
         'role': user["role"],
         'exp': datetime.now(timezone.utc) + timedelta(minutes=20)
     }
-    token = jwt.encode(payload, app.secret_key, algorithm="HS256")
+    token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm="HS256")
     return token
 
 
 def verify_token(token: str):
     try:
-        decoded = jwt.decode(token, app.secret_key, algorithms=["HS256"])
+        decoded = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
         return decoded
     except jwt.ExpiredSignatureError:
         return None
@@ -36,8 +36,8 @@ def verify_token(token: str):
 def guest_login():
     payload = {
         'username': "Guest" + str(int(datetime.now().timestamp()) >> 4),
-        'role': "guest",
+        'role': "GUEST",
         'exp': datetime.now(timezone.utc) + timedelta(minutes=20)
     }
-    token = jwt.encode(payload, app.secret_key, algorithm="HS256")
+    token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm="HS256")
     return token

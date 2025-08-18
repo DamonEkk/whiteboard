@@ -2,7 +2,7 @@ from flask import Flask
 from flask_socketio import SocketIO
 from flask import render_template
 
-app = 0;
+app = None;
 
 #boilerplate stuff
 
@@ -10,6 +10,7 @@ socketio = SocketIO()
 
 # Factory pattern function that creates a modular flask app
 def start_app():
+    global app
     app = Flask(__name__)
     app.config['SECRET'] = 'dev' #change key to something more private later
     socketio.init_app(app, cors_allowed_origins="*")
