@@ -45,7 +45,8 @@ document.getElementById("login").addEventListener("submit", async function(e) {
 	}
 
 	catch (e){
-		window.location.href = "/500"	
+		console.error("login error:", e);
+		window.location.href = "/500";	
 	}
 	
 });
