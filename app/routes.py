@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, jsonify
+from flask import Blueprint, render_template, jsonify, request
 from .users import generate_token, users_map
 
 # The file is all about routing traffic to the correct urls
