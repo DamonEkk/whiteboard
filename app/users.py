@@ -1,43 +1,41 @@
 import jwt
 from datetime import datetime, timedelta, timezone
-import os
 from .__init__ import app
 
+users_map = {
+    "user": {"password": "user123", "role": "USER"},
+    "admin": {"password": "admin123", "role": "ADMIN"}
+}
 
-users_map = {"user": {"password": "user123", "role": "USER"},
-             "admin": {"password": "admin123", "role": "ADMIN"}
-            }
-
-#Reference to week 4 practical from Alan
 def generate_token(username):
     user = users_map.get(username)
     if not user:
         return None
 
     payload = {
-        'username': username,
-        'role': user["role"],
-        'exp': datetime.now(timezone.utc) + timedelta(minutes=20)
+        "username": username,
+        "role": user["role"],
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=20)
     }
+
     token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm="HS256")
+    if isinstance(token, bytes):
+        token = token.decode("utf-8")
     return token
 
-
-def verify_token(token: str):
+def verify_token(token):
     try:
-        decoded = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-        return decoded
-    except jwt.ExpiredSignatureError:
+        return jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
         return None
-    except jwt.InvalidTokenError:
-        return None
-
 
 def guest_login():
     payload = {
-        'username': "Guest" + str(int(datetime.now().timestamp()) >> 4),
-        'role': "GUEST",
-        'exp': datetime.now(timezone.utc) + timedelta(minutes=20)
+        "username": "Guest" + str(int(datetime.now().timestamp()) >> 4),
+        "role": "GUEST",
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=20)
     }
     token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm="HS256")
+    if isinstance(token, bytes):
+        token = token.decode("utf-8")
     return token

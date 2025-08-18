@@ -31,11 +31,19 @@ def create_user():
 @main.route("/users", methods=["POST"])
 def login():
     data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid JSON"}), 400
+
     username = data.get("username")
     password = data.get("password")
+
+    if not username or not password:
+        return jsonify({"error": "Missing username or password"}), 400
+
     user = users_map.get(username)
     if not user or user["password"] != password:
-        abort(401, description="Incorrect user or password")    
+        return jsonify({"error": "Incorrect username or password"}), 401
+
     token = generate_token(username)
     return jsonify({"token": token})
 
