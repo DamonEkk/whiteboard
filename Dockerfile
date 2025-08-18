@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 5000
 
 # Run your app (adjust entry.py if needed)
-CMD ["python", "entry.py"]
+CMD ["sh", "-c", "python", "entry.py"]
