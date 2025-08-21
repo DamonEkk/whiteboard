@@ -7,6 +7,8 @@ const ctx = canvas.getContext("2d");
 canvas.width = canvas.offsetWidth;
 canvas.height = canvas.offsetHeight;
 
+let currentRoom = 1;
+let roomCount = 1;
 let drawing = false; // Drawing is disabled when we arnt holding mousedown
 let drawSize = 6;
 let idNum = 0;
@@ -66,8 +68,8 @@ let currentStroke = {
 	strokeId: generate_stroke_ID(),
 	colour: drawColour,
 	size: drawSize,
-	points: stroke
-	room: 
+	points: stroke,
+	room: currentRoom
 }
 stroke = [];
 history.push(currentStroke);

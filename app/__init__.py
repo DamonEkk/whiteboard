@@ -12,7 +12,7 @@ socketio = SocketIO()
 def start_app():
     global app
     app = Flask(__name__)
-    app.config['SECRET'] = 'dev' #change key to something more private later
+    app.config['SECRET_KEY'] = 'dev' #change key to something more private later
     socketio.init_app(app, cors_allowed_origins="*")
 
     # http routes from routes.py, registers them into blueprints making them more modular

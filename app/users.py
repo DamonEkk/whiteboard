@@ -1,6 +1,6 @@
 import jwt
 from datetime import datetime, timedelta, timezone
-from .__init__ import app
+from flask import current_app
 
 users_map = {
     "user": {"password": "user123", "role": "USER"},
@@ -18,14 +18,14 @@ def generate_token(username):
         "exp": datetime.now(timezone.utc) + timedelta(minutes=20)
     }
 
-    token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm="HS256")
+    token = jwt.encode(payload, current_app.config['SECRET_KEY'], algorithm="HS256")
     if isinstance(token, bytes):
         token = token.decode("utf-8")
     return token
 
 def verify_token(token):
     try:
-        return jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+        return jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"])
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
         return None
 
@@ -35,7 +35,7 @@ def guest_login():
         "role": "GUEST",
         "exp": datetime.now(timezone.utc) + timedelta(minutes=20)
     }
-    token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm="HS256")
+    token = jwt.encode(payload, current_app.config['SECRET_KEY'], algorithm="HS256")
     if isinstance(token, bytes):
         token = token.decode("utf-8")
     return token

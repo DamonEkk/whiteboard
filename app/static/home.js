@@ -1,8 +1,8 @@
 
 document.getElementById("login").addEventListener("submit", async function(e) {
-	e.preventDefault();
 
 	console.log("button hit");
+	e.preventDefault(); // Stops page from refreshing itself
 
 	let username = document.getElementById("username").value;
 	let password = document.getElementById("password").value;
