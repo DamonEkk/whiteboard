@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, jsonify, request
-from .users import generate_token, users_map
+from .users import generate_token, users_map, verify_token
 
 # The file is all about routing traffic to the correct urls
 # Ai was used for some of the boilery-plate stuff. 
@@ -12,10 +12,39 @@ main = Blueprint('main', __name__)
 def home():
     return render_template("home.html")
 
+@main.route("/userLogged", methods=["GET"])
+def userLogged():
+    # Cookie related boilerplate influenced by chatgpt
+    token = request.args.get("token")
+    jsonToken = verify_token(token)
+
+    if jsonToken.get("role") != "USER" and jsonToken.get("role") != "ADMIN":
+        return render_template("/")
+
+    if jsonToken.get("role") == "ADMIN":
+        return render_template("/adminLogged")
+    #Need to verify that token is logged in as a user 
+
+    return render_template("userLogged.html")
+
+@main.route("/adminLogged", methods=["GET"])
+def adminLogged():
+    # Get logged token
+    token = request.org.get("token")
+    jsonToken = verify_token(token)
+
+    if jsonToken.get("role") == "ADMIN":
+        return render_template("/adminLogged")
+
+    else:
+        return render_template("/")
+
 
 @main.route("/canvas", methods=["GET"])
 def canvas():
-    return render_template("canvas.html")
+    roomID = request.args.get("roomID")
+
+    return render_template("canvas.html", roomID=roomID)
 
 
 @main.route("/user", methods=["POST"])

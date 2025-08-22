@@ -44,8 +44,11 @@
 				</select>
 				<button type="button" for="undo" name="Undo" id="undo">Undo</button>
 			</div>
+			<label>Page:</label>
+			<input type="number"></input>
+			<button type="button" id="addPageButton">New</button>
 		</form>
-		<canvas id="room-0"></canvas>
+		<canvas id="room"></canvas>
 		<script src="{{ url_for('static', filename='canvas.js') }}"></script>
 	</body>
 </html>

@@ -23,6 +23,8 @@ def generate_token(username):
         token = token.decode("utf-8")
     return token
 
+# Chatgpt reference
+# Decodes token so we can verify role 
 def verify_token(token):
     try:
         return jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"])
@@ -39,3 +41,4 @@ def guest_login():
     if isinstance(token, bytes):
         token = token.decode("utf-8")
     return token
+

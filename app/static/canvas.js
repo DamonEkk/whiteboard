@@ -1,12 +1,16 @@
-const canvas = document.getElementById("room-0");
+const canvas = document.getElementById("room");
 const sizeInput = document.getElementById("size");
 const colourSelect = document.getElementById("colour");
 const ctx = canvas.getContext("2d");
+
+const params = new URLSearchParams(window.location.search);
+const roomID = params.get("roomID");
 //const undo = document.querySelector('button[name="Undo"]');
 
 canvas.width = canvas.offsetWidth;
 canvas.height = canvas.offsetHeight;
 
+let drawNum = 1;
 let currentRoom = 1;
 let roomCount = 1;
 let drawing = false; // Drawing is disabled when we arnt holding mousedown
@@ -42,7 +46,7 @@ console.log(history);
 
 // Changes the colour event. 
 colourSelect.addEventListener("change", () => {
-drawColour = colourSelect.value;
+	drawColour = colourSelect.value;
 });
 
 
@@ -61,56 +65,59 @@ ctx.beginPath();
 
 // Stop Drawing when you let go of mouse.
 canvas.addEventListener("mouseup", () => {
+
 drawing = false;
 
 // For saving keystrokes, used for websockets and undo.
 let currentStroke = {
-	strokeId: generate_stroke_ID(),
-	colour: drawColour,
-	size: drawSize,
-	points: stroke,
-	room: currentRoom
-}
-stroke = [];
-history.push(currentStroke);
-
-
+		canvas: roomID,
+		drawId: drawNum,
+		strokeId: generate_stroke_ID(),
+		colour: drawColour,
+		size: drawSize,
+		points: stroke,
+		room: currentRoom
+	}
+	stroke = [];
+	history.push(currentStroke);
+	console.log(currentStroke);
+	drawNum++;
 });
 
 
 // Drawing mechanic when drawing it true and mouse is moving.
 canvas.addEventListener("mousemove", (e) => {
-if (!drawing) return;
-ctx.lineWidth = drawSize; // Size 
-ctx.strokeStyle = drawColour;	
+	if (!drawing) return;
+	ctx.lineWidth = drawSize; // Size 
+	ctx.strokeStyle = drawColour;	
 
 
-let point = [e.offsetX, e.offsetY]
+	let point = [e.offsetX, e.offsetY]
 
-stroke.push(point)
+	stroke.push(point)
 
-ctx.lineTo(e.offsetX, e.offsetY);
-ctx.stroke();
-ctx.moveTo(e.offsetX, e.offsetY);
+	ctx.lineTo(e.offsetX, e.offsetY);
+	ctx.stroke();
+	ctx.moveTo(e.offsetX, e.offsetY);
 });
 
 
 function generate_stroke_ID(){
-return idNum++;	
+	return idNum++;	
 }
 
 
 function removed_stroke_ID(){
-idNum--;
+	idNum--;
 }
 
 
 function get_highest_stroke(){
-return history[history.length - 1]
+	return history[history.length - 1]
 }
 
 function clear_page(){
-ctx.clearRect(0, 0, canvas.width, canvas.height); //clear page
+	ctx.clearRect(0, 0, canvas.width, canvas.height); //clear page
 }
 
 

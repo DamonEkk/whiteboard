@@ -28,12 +28,14 @@ document.getElementById("login").addEventListener("submit", async function(e) {
 		console.log("login success");
 
 		const payload = JSON.parse(atob(token.split('.')[1])); 
+
+		// Add token so we can verify the users role
 		switch (payload.role){
 			case "ADMIN":
-				window.location.href = "/adminLogged"
+				window.location.href = "/adminLogged?token=" + token;
 				break;
 			case "USER":
-				window.location.href = "/userLogged"
+				window.location.href = "/userLogged?token=" + token;
 				break;
 			case "GUEST":
 				window.location.href = "/guestLogged"
