@@ -5,13 +5,13 @@ const ctx = canvas.getContext("2d");
 
 const params = new URLSearchParams(window.location.search);
 const roomID = params.get("roomID");
-//const undo = document.querySelector('button[name="Undo"]');
+const token = params.get("token");
 
 canvas.width = canvas.offsetWidth;
 canvas.height = canvas.offsetHeight;
 
 let drawNum = 1;
-let currentRoom = 1;
+let currentPage = 1;
 let roomCount = 1;
 let drawing = false; // Drawing is disabled when we arnt holding mousedown
 let drawSize = 6;
@@ -21,6 +21,9 @@ let stroke = []; // current stroke points
 let history = []; // History used for undo functionality
 ctx.lineCap = "round";
 
+exportButton.addEventListener("click", () => {
+	
+});
 
 // prevents <enter> from resetting the page, not the best fix for it.
 document.querySelector(".selection-form").addEventListener("submit", (e) => {
@@ -29,7 +32,8 @@ document.querySelector(".selection-form").addEventListener("submit", (e) => {
 
 // Clears the canvas
 clear.addEventListener("click", () => {
-clear_page();
+	clear_page();
+	clear_strokes_page(currentPage); //Clears history of page strokes
 });
 
 
@@ -42,11 +46,26 @@ console.log(history);
 //} Might be better to wait till websockets are a thing and make this global due to clearing the whole page.
 
 });
+	
+// "Creates" a new page, clears page and 
+addPageButton.addEventListener("click", () => {
+	clear_page();
+	currentPage++;
+	changePage.value++;
+});
 
 
 // Changes the colour event. 
 colourSelect.addEventListener("change", () => {
 	drawColour = colourSelect.value;
+});
+
+changePage.addEventListener("change", () => {
+	if (!(changePage.value == currentPage) || !(changePage.value == null)){
+		currentPage = changePage.value;
+		clear_page();
+		draw_strokes(currentPage);
+	}
 });
 
 
@@ -71,12 +90,13 @@ drawing = false;
 // For saving keystrokes, used for websockets and undo.
 let currentStroke = {
 		canvas: roomID,
+		username: userID,
 		drawId: drawNum,
 		strokeId: generate_stroke_ID(),
 		colour: drawColour,
 		size: drawSize,
 		points: stroke,
-		room: currentRoom
+		page: currentPage
 	}
 	stroke = [];
 	history.push(currentStroke);
@@ -120,4 +140,34 @@ function clear_page(){
 	ctx.clearRect(0, 0, canvas.width, canvas.height); //clear page
 }
 
+function clear_strokes_page(page){
+	history = history.filter(drawStroke => drawStroke.page != page);		
+}
 
+
+// This is using global lists, probably would pass a list of strokes in reality
+function draw_strokes(page){
+	cPage = history.filter(drawStroke => drawStroke.page == page);
+
+	saveSize = drawSize;
+	saveColour = drawColour;
+
+	for (i = 0; i < cPage.length; i++){
+		ctx.beginPath();
+
+		for (k = 0; k < cPage[i].points.length; k++){
+			pointX = cPage[i].points[k][0];
+			pointY = cPage[i].points[k][1];
+			ctx.lineWidth = cPage[i].drawSize; // Changing the size to saved size
+			ctx.strokeStyle = cPage[i].drawColour;	// Changing the colour to saved colour
+
+
+			ctx.lineTo(pointX, pointY);
+			ctx.stroke();
+			ctx.moveTo(pointX, pointY);
+
+		}
+	}
+		ctx.lineWidth = drawSize;
+		ctx.strokeStyle = drawColour;	 
+}
