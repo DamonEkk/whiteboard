@@ -1,10 +1,10 @@
 from PIL import Image, ImageDraw
-pageNum = -1
-pageList = []
+
 
 def render_strokes(history, canvasH, canvasW):
+    pageList = []
 
-
+    pageNum = -1
     heightScale = 2160 / canvasH
     widthScale = 3840 / canvasW
     
@@ -29,5 +29,7 @@ def render_strokes(history, canvasH, canvasW):
             y = coords[1] * heightScale
 
             drawImage.ellipse([x-strokeSize//2, y-strokeSize//2, x+strokeSize//2, y+strokeSize//2], fill=colour)
+
+    pageList.append(newImage)
 
     return pageList

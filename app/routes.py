@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, jsonify, request
+from flask import Blueprint, render_template, jsonify, request, send_file
+from io import BytesIO
 from .users import generate_token, users_map, verify_token
 from .export import * 
 
@@ -100,17 +101,31 @@ def get_users(roomNum):
 @main.route("/room/export", methods=["POST"])
 def export():
     data = request.get_json()
-    print(data, flush=True)
     strokes = data.get("history", [])
-    canvasH = data.get("canvas.height")
-    canvasW = data.get("cavnas.width")
-    print(strokes, flush=True)
+    canvasW = data.get("canvasWidth")
+    canvasH = data.get("canvasHeight")
 
+    print(strokes, flush=True)
+    print(canvasH, flush=True)
+    print(canvasW, flush=True)
+    
     if len(strokes) == 0:
         print("Empty List", flush=True)
 
-    return jsonify({"status": "success"})
-    
+    photos = render_strokes(strokes, canvasH, canvasW)
+
+  # Use first page only for quick test
+    img_bytes = BytesIO()
+    photos[0].save(img_bytes, format="PNG")
+    img_bytes.seek(0)
+
+    return send_file(
+        img_bytes,
+        mimetype="image/png",
+        as_attachment=True,
+        download_name="page1.png"
+    )
+
 
 
 

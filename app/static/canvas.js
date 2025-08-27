@@ -80,19 +80,21 @@ exportButton.addEventListener("click", () => {
 			    "Content-Type": "application/json",
 			    "Authorization": `Bearer ${token}`
 			},
-			body: JSON.stringify({ history: history})
+			body: JSON.stringify({ history: history, canvasHeight: canvas.height, canvasWidth: canvas.width})
 		    })
 
-		    .then(res => {
-			if (!res.ok) {
-			    throw new Error("Export failed: " + res.status);
-			}
-			return res.json();
-		    })
-		    .then(data => {
-			console.log("Export response:", data);
-		    })
-		    .catch(err => console.error(err));	
+		.then(res => res.blob())  // <--- handle as blob
+		.then(blob => {
+		    const url = window.URL.createObjectURL(blob);
+		    const a = document.createElement("a");
+		    a.href = url;
+		    a.download = "page1.png";  // or .zip if sending multiple pages
+		    document.body.appendChild(a);
+		    a.click();
+		    a.remove();
+		    window.URL.revokeObjectURL(url);
+		})
+		.catch(err => console.error(err));
 	}
 });
 
