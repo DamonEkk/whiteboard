@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, jsonify, request, send_file
 from io import BytesIO
 from .users import generate_token, users_map, verify_token
 from .export import * 
+import base64
 
 # The file is all about routing traffic to the correct urls
 # Ai was used for some of the boilery-plate stuff. 
@@ -114,18 +115,14 @@ def export():
 
     photos = render_strokes(strokes, canvasH, canvasW)
 
-  # Use first page only for quick test
-    img_bytes = BytesIO()
-    photos[0].save(img_bytes, format="PNG")
-    img_bytes.seek(0)
+    png_list = []
+    for i, img in enumerate(photos):
+        img_bytes = BytesIO()
+        img.save(img_bytes, format="PNG")
+        img_bytes.seek(0)
+        b64_string = base64.b64encode(img_bytes.read()).decode("utf-8")
+        png_list.append(b64_string)
 
-    return send_file(
-        img_bytes,
-        mimetype="image/png",
-        as_attachment=True,
-        download_name="page1.png"
-    )
-
-
+    return jsonify({"status": "success", "pages": png_list})
 
 

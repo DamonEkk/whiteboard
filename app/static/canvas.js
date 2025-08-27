@@ -68,36 +68,40 @@ changePage.addEventListener("change", () => {
 	}
 });
 
-exportButton.addEventListener("click", () => {
+exportButton.addEventListener("click", async () => {
 	if (!token){
 		console.log("User is not signed in");
 	}
-	else{
-		// Chatgpt helped with some of this jwt boilerplate stuff
-		fetch("/room/export", {
-			method: "POST",
-			headers: {
-			    "Content-Type": "application/json",
-			    "Authorization": `Bearer ${token}`
-			},
-			body: JSON.stringify({ history: history, canvasHeight: canvas.height, canvasWidth: canvas.width})
-		    })
+	try {
+        const response = await fetch("/room/export", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                history: history,
+                canvasHeight: canvas.height,
+                canvasWidth: canvas.width
+            })
+        });
 
-		.then(res => res.blob())  // <--- handle as blob
-		.then(blob => {
-		    const url = window.URL.createObjectURL(blob);
-		    const a = document.createElement("a");
-		    a.href = url;
-		    a.download = "page1.png";  // or .zip if sending multiple pages
-		    document.body.appendChild(a);
-		    a.click();
-		    a.remove();
-		    window.URL.revokeObjectURL(url);
-		})
-		.catch(err => console.error(err));
-	}
+        const data = await response.json();
+        const pages = data.pages || [];
+
+        pages.forEach((b64, i) => {
+            const a = document.createElement("a");
+            a.href = "data:image/png;base64," + b64;
+            a.download = `page_${i + 1}.png`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        });
+
+    } catch (err) {
+        console.error("Export failed:", err);
+    }
 });
-
 
 // Changes the size of the brush event.
 sizeInput.addEventListener("change", () => {
@@ -126,7 +130,7 @@ let currentStroke = {
 		colour: drawColour,
 		size: drawSize,
 		points: stroke,
-		page: currentPage
+		page: parseInt(currentPage)
 	}
 	stroke = [];
 	history.push(currentStroke);

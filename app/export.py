@@ -7,9 +7,12 @@ def render_strokes(history, canvasH, canvasW):
     pageNum = -1
     heightScale = 2160 / canvasH
     widthScale = 3840 / canvasW
-    
+    strokeID = -1
+        
 
     for stroke in history:
+        flag = 0
+        
         if stroke.get("page") != pageNum:
             if pageNum != -1:
                 pageList.append(newImage)
@@ -17,8 +20,6 @@ def render_strokes(history, canvasH, canvasW):
             pageNum = stroke.get("page")
             newImage = Image.new("RGB", (3840, 2160), "white")
             drawImage = ImageDraw.Draw(newImage)
-
-
             
         
         strokeSize = stroke.get("size")
@@ -28,7 +29,16 @@ def render_strokes(history, canvasH, canvasW):
             x = coords[0] * widthScale
             y = coords[1] * heightScale
 
-            drawImage.ellipse([x-strokeSize//2, y-strokeSize//2, x+strokeSize//2, y+strokeSize//2], fill=colour)
+            if flag == 1:
+                drawImage.line([historyX+strokeSize//2, historyY+strokeSize//2, x+strokeSize//2, y+strokeSize//2], fill=colour, width=strokeSize)
+
+            else:
+                flag = 1
+                drawImage.ellipse([x-strokeSize//2, y-strokeSize//2, x+strokeSize//2, y+strokeSize//2], fill=colour, width=strokeSize)  
+
+
+            historyX = x
+            historyY = y
 
     pageList.append(newImage)
 
