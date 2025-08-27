@@ -68,6 +68,34 @@ changePage.addEventListener("change", () => {
 	}
 });
 
+exportButton.addEventListener("click", () => {
+	if (!token){
+		console.log("User is not signed in");
+	}
+	else{
+		// Chatgpt helped with some of this jwt boilerplate stuff
+		fetch("/room/export", {
+			method: "POST",
+			headers: {
+			    "Content-Type": "application/json",
+			    "Authorization": `Bearer ${token}`
+			},
+			body: JSON.stringify({ history: history})
+		    })
+
+		    .then(res => {
+			if (!res.ok) {
+			    throw new Error("Export failed: " + res.status);
+			}
+			return res.json();
+		    })
+		    .then(data => {
+			console.log("Export response:", data);
+		    })
+		    .catch(err => console.error(err));	
+	}
+});
+
 
 // Changes the size of the brush event.
 sizeInput.addEventListener("change", () => {
@@ -90,7 +118,7 @@ drawing = false;
 // For saving keystrokes, used for websockets and undo.
 let currentStroke = {
 		canvas: roomID,
-		username: userID,
+		// add username here
 		drawId: drawNum,
 		strokeId: generate_stroke_ID(),
 		colour: drawColour,
@@ -170,4 +198,8 @@ function draw_strokes(page){
 	}
 		ctx.lineWidth = drawSize;
 		ctx.strokeStyle = drawColour;	 
+}
+
+function draw_all_pages(strokes){
+	return
 }

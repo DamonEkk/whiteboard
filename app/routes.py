@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, jsonify, request
 from .users import generate_token, users_map, verify_token
+from .export import * 
 
 # The file is all about routing traffic to the correct urls
 # Ai was used for some of the boilery-plate stuff. 
@@ -96,10 +97,20 @@ def get_users(roomNum):
     return jsonify({"room": roomNum, "users": users})
 
 
-@main.route("/user/<username>", methods=["DELETE"])
-def delete_user(username):
-    return 0
+@main.route("/room/export", methods=["POST"])
+def export():
+    data = request.get_json()
+    print(data, flush=True)
+    strokes = data.get("history", [])
+    canvasH = data.get("canvas.height")
+    canvasW = data.get("cavnas.width")
+    print(strokes, flush=True)
 
-@main.route("/room/<pageJSN>", methods=["GET"])
-def get_page_json(pageJSN):
-    return "Success" 
+    if len(strokes) == 0:
+        print("Empty List", flush=True)
+
+    return jsonify({"status": "success"})
+    
+
+
+
