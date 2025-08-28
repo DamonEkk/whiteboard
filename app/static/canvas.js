@@ -69,10 +69,12 @@ changePage.addEventListener("change", () => {
 });
 
 exportButton.addEventListener("click", async () => {
-	if (!token){
-		console.log("User is not signed in");
-	}
-	try {
+    if (!token) {
+        console.log("Not logged in");
+        return;
+    }
+
+    try {
         const response = await fetch("/room/export", {
             method: "POST",
             headers: {
@@ -86,20 +88,23 @@ exportButton.addEventListener("click", async () => {
             })
         });
 
-        const data = await response.json();
-        const pages = data.pages || [];
+        if (!response.ok) {
+            throw new Error("Error 500");
+        }
 
-        pages.forEach((b64, i) => {
-            const a = document.createElement("a");
-            a.href = "data:image/png;base64," + b64;
-            a.download = `page_${i + 1}.png`;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-        });
+        const pdfBlob = await response.blob();
+        const url = window.URL.createObjectURL(pdfBlob);
+        const a = document.createElement("a");
+
+        a.href = url;
+        a.download = "canvas_export.pdf";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
 
     } catch (err) {
-        console.error("Export failed:", err);
+        console.error("Error: ", err);
     }
 });
 

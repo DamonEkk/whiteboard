@@ -3,6 +3,7 @@ from io import BytesIO
 from .users import generate_token, users_map, verify_token
 from .export import * 
 import base64
+import random
 
 # The file is all about routing traffic to the correct urls
 # Ai was used for some of the boilery-plate stuff. 
@@ -25,7 +26,7 @@ def userLogged():
         return render_template("/")
 
     if jsonToken.get("role") == "ADMIN":
-        return render_template("/adminLogged")
+        return render_template("adminLogged.html")
     #Need to verify that token is logged in as a user 
 
     return render_template("userLogged.html")
@@ -33,11 +34,11 @@ def userLogged():
 @main.route("/adminLogged", methods=["GET"])
 def adminLogged():
     # Get logged token
-    token = request.org.get("token")
+    token = request.args.get("token")
     jsonToken = verify_token(token)
 
     if jsonToken.get("role") == "ADMIN":
-        return render_template("/adminLogged")
+        return render_template("adminLogged.html")
 
     else:
         return render_template("/")
@@ -106,23 +107,55 @@ def export():
     canvasW = data.get("canvasWidth")
     canvasH = data.get("canvasHeight")
 
-    print(strokes, flush=True)
-    print(canvasH, flush=True)
-    print(canvasW, flush=True)
     
     if len(strokes) == 0:
         print("Empty List", flush=True)
 
     photos = render_strokes(strokes, canvasH, canvasW)
 
-    png_list = []
-    for i, img in enumerate(photos):
-        img_bytes = BytesIO()
-        img.save(img_bytes, format="PNG")
-        img_bytes.seek(0)
-        b64_string = base64.b64encode(img_bytes.read()).decode("utf-8")
-        png_list.append(b64_string)
 
-    return jsonify({"status": "success", "pages": png_list})
+    return send_file(
+        photos,
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name="canvas_export.pdf"
+    )
+
+
+@main.route("/admin/stress", methods=["POST"])
+def stress():
+    canvasW = 1080
+    canvasH = 720
+    coords = []
+    num = 1
+    jsonList = []
+
+    pageAmount = 1000
+
+    for x in range(pageAmount):
+        for i in range(canvasW):
+            for j in range(canvasH):
+                # Not really uniformDistro but itll work for this purpose
+                uniformDistro = random.randint(0,1000)
+
+                if uniformDistro <=  1:
+                    coords.append([i, j])
+
+        pageJson = {
+            "roomID": 0,
+            "canvasRoom": x,
+            "strokeID": 0,
+            "drawID": num,
+            "colour": "black",
+            "stroke": cords, 
+            "size": 6
+        }
+
+        jsonList.append(pageJson)
+        num = num + 1
+    pass
+
+
+
 
 
