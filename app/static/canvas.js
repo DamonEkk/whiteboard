@@ -75,6 +75,7 @@ exportButton.addEventListener("click", async () => {
     }
 
     try {
+	   
         const response = await fetch("/room/export", {
             method: "POST",
             headers: {

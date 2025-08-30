@@ -1,61 +1,54 @@
-from PIL import Image, ImageDraw, ImageFilter
-import io
 
+from PIL import Image, ImageDraw, ImageFilter
+from reportlab.pdfgen import canvas
+from reportlab.lib.utils import ImageReader
+import io
+from collections import defaultdict
 
 def render_strokes(history, canvasH, canvasW):
-    pageList = []
+    pdf_buffer = io.BytesIO()
+    sizeH = 2160
+    sizeW = 3840
+    c = canvas.Canvas(pdf_buffer, pagesize=(sizeW, sizeH))
 
-    pageNum = -1
-    heightScale = 2160 / canvasH # Used to upscale the lines
-    widthScale = 3840 / canvasW
-    strokeID = -1
-        
+    scaleX = sizeW / canvasW
+    scaleY = sizeH / canvasH
+    scaleAvg = (scaleX + scaleY) / 2
 
-    # Goes through full history of all canvas drawing
+    # Group strokes by page
+    pages = defaultdict(list)
     for stroke in history:
-        flag = 0
-        
-        if stroke.get("page") != pageNum:
-            if pageNum != -1:
-                newImage = newImage.filter(ImageFilter.UnsharpMask(radius=5, percent=150, threshold=3)) # Really just to add to cpu intensive rubric requirement would remove in practise
+        pages[stroke.get("page")].append(stroke)
 
+    for pageNum in sorted(pages.keys()):
+        img = Image.new("RGB", (sizeW, sizeH), "white")
+        draw = ImageDraw.Draw(img)
 
-                pageList.append(newImage)
+        for stroke in pages[pageNum]:
+            size = stroke.get("size")
+            colour = stroke.get("colour")
+            width = int(size * scaleAvg)
+            flag = 0
 
-            pageNum = stroke.get("page")
-            newImage = Image.new("RGB", (3840, 2160), "white")
-            drawImage = ImageDraw.Draw(newImage)
-            
-        
-        strokeSize = stroke.get("size")
-        colour = stroke.get("colour")
+            for x0, y0 in stroke.get("points"):
+                x = x0 * scaleX
+                y = y0 * scaleY
 
-        # Goes through all coordinates where there has been a drawing.
-        for coords in stroke.get("points"):
-            x = coords[0] * widthScale
-            y = coords[1] * heightScale
+                if flag:
+                    draw.line([hx, hy, x, y], fill=colour, width=width)
+                else:
+                    r = width // 2
+                    draw.ellipse([x - r, y - r, x + r, y + r], fill=colour)
+                    flag = 1
 
-            # The flag is turned on once the first point has been drawn, this flag connects previous point to current point.
-            if flag == 1:
-                drawImage.line([historyX+strokeSize//2, historyY+strokeSize//2, x+strokeSize//2, y+strokeSize//2], fill=colour, width= int(strokeSize * widthScale));
+                hx, hy = x, y
 
-            else:
-                flag = 1
-                drawImage.ellipse([x-strokeSize//2, y-strokeSize//2, x+strokeSize//2, y+strokeSize//2], fill=colour); 
+        # CPU-intensive filter
+        img = img.filter(ImageFilter.UnsharpMask(radius=5, percent=150, threshold=3))
+        c.drawImage(ImageReader(img), 0, 0, width=sizeW, height=sizeH)
+        c.showPage()
 
+    c.save()
+    pdf_buffer.seek(0)
+    return pdf_buffer
 
-            historyX = x
-            historyY = y
-
-    # Adds the last page to the list
-    newImage = newImage.filter(ImageFilter.UnsharpMask(radius=5, percent=150, threshold=3))
-    pageList.append(newImage)
-
-    # PDF combatible 
-    images = [img.convert("RGB") for img in pageList]
-
-    pdf = io.BytesIO() # Used to store a pdf
-    images[0].save(pdf, format="PDF", save_all=True, append_images=images[1:])
-    pdf.seek(0)
-
-    return pdf

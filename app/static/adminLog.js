@@ -1,6 +1,7 @@
 const joinButton = document.getElementById("joinRoom")
 const createButton = document.getElementById("createRoom")
 const token = localStorage.getItem("token")
+const stressButton = document.getElementById("stressButton");
 
 if (token){
     const payload = JSON.parse(atob(token.split('.')[1]));
@@ -18,9 +19,9 @@ createButton.addEventListener("click", () =>{
 	createRoom();
 });
 
-stressButton.addEventListener("click", async () => {
+stressButton.addEventListener("click", async (e) => {
 
-    console.log(`/admin/stress?token=${token}`);
+   e.preventDefault(); 
 
     try {
         const response = await fetch("/admin/stress", { 

@@ -104,48 +104,64 @@ def export():
     )
 
 
+
 @main.route("/admin/stress", methods=["POST"])
 def stress():
-
-    token = request.args.get("token")
-    jsonToken = verify_token(token)
-
-    if not jsonToken or jsonToken.get("role") != "ADMIN":
-        return {"error": 401}
-        
-    canvasW = 1080
-    canvasH = 720
-    coords = []
-    num = 1
+    canvasW = 1354
+    canvasH = 595
     jsonList = []
 
-    pageAmount = 3
+    pageAmount = 1000
 
-    for x in range(pageAmount):
-        coords = []
-        for i in range(canvasW):
-            for j in range(canvasH):
-                # Not really uniformDistro but itll work for this purpose
-                uniformDistro = random.randint(0,1000)
+    for page in range(pageAmount):
+        # Add each stroke as a separate dictionary
+        strokes = [
+            {
+                "canvas": "-6715537",
+                "drawId": 1,
+                "strokeId": 0,
+                "colour": "black",
+                "size": 6,
+                "points": [
+                    [249, 57],[249, 59],[250, 70],[254, 95],[263, 131],
+                    [271, 157],[275, 171],[277, 179],[279, 183]
+                ],
+                "page": page
+            },
+            {
+                "canvas": "-6715537",
+                "drawId": 2,
+                "strokeId": 1,
+                "colour": "black",
+                "size": 6,
+                "points": [
+                    [361, 57],[361, 58],[361, 61],[361, 68],[361, 82],
+                    [364, 105],[369, 132],[374, 154],[377, 166],[378, 174],
+                    [380, 178],[380, 180],[380, 181],[380, 181]
+                ],
+                "page": page
+            },
+            {
+                "canvas": "-6715537",
+                "drawId": 3,
+                "strokeId": 2,
+                "colour": "black",
+                "size": 6,
+                "points": [
+                    [319, 392],[319, 392],[319, 387],[319, 374],[319, 353],
+                    [319, 328],[319, 305],[319, 289],[319, 281],[319, 278],
+                    [321, 276],[327, 276],[339, 276],[360, 280],[390, 290],
+                    [422, 303],[447, 316],[467, 330],[485, 344],[496, 354],
+                    [503, 363],[507, 371],[510, 376],[511, 384]
+                ],
+                "page": page
+            }
+        ]
 
-                if uniformDistro <=  1:
-                    coords.append([i, j])
+        # Append each stroke to jsonList
+        jsonList.extend(strokes)
 
-        pageJson = {
-            "canvas": 0,
-            "drawId": num,
-            "strokeId": 0,
-            "colour": "black",
-            "size": 6,
-            "points": coords, 
-            "page": x
-        }
-        
-        jsonList.append(pageJson)
-        num = num + 1
-    
-
-    photos = render_strokes(jsonList, canvasH, canvasW) 
+    photos = render_strokes(jsonList, canvasH, canvasW)
 
     return send_file(
         photos,
