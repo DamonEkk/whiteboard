@@ -27,6 +27,7 @@ def generate_token(username):
 # Decodes token so we can verify role 
 def verify_token(token):
     try:
+        print(jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"]))
         return jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"])
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
         return None

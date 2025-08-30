@@ -8,16 +8,15 @@ createButton.addEventListener("click", () =>{
 });
 
 stressButton.addEventListener("click", async () => {
-    if (!token) {
-        console.log("Not logged in");
-        return;
-    }
 
     console.log(`/admin/stress?token=${token}`);
 
     try {
         const response = await fetch(`/admin/stress?token=${token}`, { // not sure why i need these ` `
-            method: "POST"
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + token
+            }
         });
 
 
@@ -35,9 +34,10 @@ stressButton.addEventListener("click", async () => {
         document.body.appendChild(a);
         a.click();
         a.remove();
-        window.URL.revokeObjectURL(url);
 
-    } catch (err) {
+    } 
+
+    catch (err) {
         console.error("Error: ", err);
     }
 });

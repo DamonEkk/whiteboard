@@ -37,11 +37,11 @@ def adminLogged():
     token = request.args.get("token")
     jsonToken = verify_token(token)
 
-    if jsonToken.get("role") == "ADMIN":
-        return render_template("adminLogged.html")
+    if not jsonToken or jsonToken.get("role") != "ADMIN":
+        return render_template("home.html")
 
     else:
-        return render_template("/")
+        return render_template("adminLogged.html")
 
 
 @main.route("/canvas", methods=["GET"])
@@ -128,11 +128,9 @@ def stress():
     token = request.args.get("token")
     jsonToken = verify_token(token)
 
-    if jsonToken.get("role") != "ADMIN":
-        return render_template("home.html")
-
-
-
+    if not jsonToken or jsonToken.get("role") != "ADMIN":
+        return {"error": 401}
+        
     canvasW = 1080
     canvasH = 720
     coords = []
@@ -152,15 +150,15 @@ def stress():
                     coords.append([i, j])
 
         pageJson = {
-            "roomID": 0,
-            "canvasRoom": x,
-            "strokeID": 0,
+            "canvas": 0,
             "drawID": num,
+            "strokeID": 0,
             "colour": "black",
-            "stroke": coords, 
-            "size": 6
+            "size": 6,
+            "points": coords, 
+            "page": x
         }
-
+        
         jsonList.append(pageJson)
         num = num + 1
     
