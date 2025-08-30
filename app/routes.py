@@ -124,6 +124,15 @@ def export():
 
 @main.route("/admin/stress", methods=["POST"])
 def stress():
+
+    token = request.args.get("token")
+    jsonToken = verify_token(token)
+
+    if jsonToken.get("role") != "ADMIN":
+        return render_template("home.html")
+
+
+
     canvasW = 1080
     canvasH = 720
     coords = []
@@ -133,6 +142,7 @@ def stress():
     pageAmount = 1000
 
     for x in range(pageAmount):
+        coords = []
         for i in range(canvasW):
             for j in range(canvasH):
                 # Not really uniformDistro but itll work for this purpose
@@ -147,13 +157,22 @@ def stress():
             "strokeID": 0,
             "drawID": num,
             "colour": "black",
-            "stroke": cords, 
+            "stroke": coords, 
             "size": 6
         }
 
         jsonList.append(pageJson)
         num = num + 1
-    pass
+    
+
+    photos = render_strokes(pageJson, canvasH, canvasW) 
+
+    return send_file(
+        photos,
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name="canvas_export.pdf"
+    )
 
 
 

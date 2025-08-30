@@ -1,10 +1,48 @@
 const joinButton = document.getElementById("joinRoom")
 const createButton = document.getElementById("createRoom")
+const token = localStorage.getItem("token")
 
 
 createButton.addEventListener("click", () =>{
 	createRoom();
 });
+
+stressButton.addEventListener("click", async () => {
+    if (!token) {
+        console.log("Not logged in");
+        return;
+    }
+
+    console.log(`/admin/stress?token=${token}`);
+
+    try {
+        const response = await fetch(`/admin/stress?token=${token}`, { // not sure why i need these ` `
+            method: "POST"
+        });
+
+
+
+        if (!response.ok) {
+            throw new Error("Error 500");
+        }
+
+        const pdfBlob = await response.blob();
+        const url = window.URL.createObjectURL(pdfBlob);
+        const a = document.createElement("a");
+
+        a.href = url;
+        a.download = "canvas_export.pdf";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+
+    } catch (err) {
+        console.error("Error: ", err);
+    }
+});
+
+
 
 
 function createRoom(){
