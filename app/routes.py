@@ -18,30 +18,12 @@ def home():
 
 @main.route("/userLogged", methods=["GET"])
 def userLogged():
-    # Cookie related boilerplate influenced by chatgpt
-    token = request.args.get("token")
-    jsonToken = verify_token(token)
-
-    if jsonToken.get("role") != "USER" and jsonToken.get("role") != "ADMIN":
-        return render_template("/")
-
-    if jsonToken.get("role") == "ADMIN":
-        return render_template("adminLogged.html")
-    #Need to verify that token is logged in as a user 
 
     return render_template("userLogged.html")
 
 @main.route("/adminLogged", methods=["GET"])
 def adminLogged():
-    # Get logged token
-    token = request.args.get("token")
-    jsonToken = verify_token(token)
-
-    if not jsonToken or jsonToken.get("role") != "ADMIN":
-        return render_template("home.html")
-
-    else:
-        return render_template("adminLogged.html")
+    return render_template("adminLogged.html")
 
 
 @main.route("/canvas", methods=["GET"])
@@ -137,7 +119,7 @@ def stress():
     num = 1
     jsonList = []
 
-    pageAmount = 1000
+    pageAmount = 3
 
     for x in range(pageAmount):
         coords = []
@@ -151,8 +133,8 @@ def stress():
 
         pageJson = {
             "canvas": 0,
-            "drawID": num,
-            "strokeID": 0,
+            "drawId": num,
+            "strokeId": 0,
             "colour": "black",
             "size": 6,
             "points": coords, 
@@ -163,7 +145,7 @@ def stress():
         num = num + 1
     
 
-    photos = render_strokes(pageJson, canvasH, canvasW) 
+    photos = render_strokes(jsonList, canvasH, canvasW) 
 
     return send_file(
         photos,

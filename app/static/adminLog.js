@@ -2,6 +2,17 @@ const joinButton = document.getElementById("joinRoom")
 const createButton = document.getElementById("createRoom")
 const token = localStorage.getItem("token")
 
+if (token){
+    const payload = JSON.parse(atob(token.split('.')[1]));
+
+    if (payload.role !== "ADMIN"){
+        window.location.href = "/"; 
+    }
+}
+else {
+    window.location.href = "/";
+}
+
 
 createButton.addEventListener("click", () =>{
 	createRoom();
@@ -12,7 +23,7 @@ stressButton.addEventListener("click", async () => {
     console.log(`/admin/stress?token=${token}`);
 
     try {
-        const response = await fetch(`/admin/stress?token=${token}`, { // not sure why i need these ` `
+        const response = await fetch("/admin/stress", { 
             method: "POST",
             headers: {
                 "Authorization": "Bearer " + token

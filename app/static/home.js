@@ -32,10 +32,10 @@ document.getElementById("login").addEventListener("submit", async function(e) {
 		// Add token so we can verify the users role
 		switch (payload.role){
 			case "ADMIN":
-				window.location.href = "/adminLogged?token=" + token;
+				window.location.href = "/adminLogged";
 				break;
 			case "USER":
-				window.location.href = "/userLogged?token=" + token;
+				window.location.href = "/userLogged";
 				break;
 			case "GUEST":
 				window.location.href = "/guestLogged"
