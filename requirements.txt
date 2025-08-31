@@ -1,5 +1,6 @@
 Flask
 flask-socketio
+pymysql
 PyJWT
 pillow
 reportlab
