@@ -7,7 +7,11 @@ __pycache__/
 
 # === Terraform ===
 *.tfstate
-*.backup
+*tfstate.backup
+crash.log
+.terraform/
+
+
 
 # === Virtual Environment ===
 .venv/
