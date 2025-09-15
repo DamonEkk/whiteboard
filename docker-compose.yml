@@ -1,6 +1,6 @@
 services:
   backend:
-    build: .
+    image: 901444280953.dkr.ecr.ap-southeast-2.amazonaws.com/n12197718/whiteboard:latest
     container_name: whiteboard
     ports:
       - "5000:5000"
