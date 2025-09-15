@@ -5,6 +5,10 @@ __pycache__/
 *.pyd
 .Python
 
+# === Terraform ===
+*.tfstate
+*.backup
+
 # === Virtual Environment ===
 .venv/
 env/
