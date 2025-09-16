@@ -37,6 +37,7 @@ Thumbs.db
 *.sqlite3
 *.db
 *.bak
+*.git-rewrite/
 
 # === Docker ===
 *.tar
