@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Home</title>
+	</head>
+	<body>
+		<form id="confirmation">
+			<h1>Code has been sent to email</h1>
+			<label>Code</label>
+			<input id="code"></input>
+			<button type="submit">Resend Code</button> 
+			<button type="submit">Cofirm</button>
+		</form>
+
+		<script src="{{ url_for('static', filename='confirmation.js') }}"></script>
+			
+	</body>
+</html>

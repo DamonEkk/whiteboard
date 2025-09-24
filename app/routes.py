@@ -1,9 +1,10 @@
 from flask import Blueprint, render_template, jsonify, request, send_file
 from io import BytesIO
-from .users import generate_token, users_map, verify_token
+from .users import generate_token, login_cognito, verify_token, confirm_cognito, signup_cognito
 from .export import * 
 import base64
 import random
+import boto3
 
 # The file is all about routing traffic to the correct urls
 # Ai was used for some of the boilery-plate stuff. 
@@ -36,12 +37,38 @@ def canvas():
 @main.route("/user", methods=["POST"])
 def create_user():
     data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid JSON"}), 400
+
     username = data.get("username")
     password = data.get("password")
     email = data.get("email")
 
-    # call create user login.
-    return "Success"
+    if not username or not password or not email:
+        return jsonify({"error": "Missing fields"}), 400
+
+    try:
+        signup_cognito(username, password, email) # Call to users.py which calls and validates signup api
+    except Exception as e:
+        return jsonify({"Invalid signup"}), 400
+
+    # calls confirmation html screen
+    return render_template("confirmation.html", msg=username)
+
+@main.route("/confirm", methods=["POST"])
+def confirmation():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    code = data.get("code")
+    username = data.get("username")
+    
+    confirmation_cognito(code, username)
+
+    return render_template("home.html")
+
+
 
 @main.route("/users", methods=["POST"])
 def login():
@@ -55,11 +82,11 @@ def login():
     if not username or not password:
         return jsonify({"error": "Missing username or password"}), 400
 
-    user = users_map.get(username)
-    if not user or user["password"] != password:
-        return jsonify({"error": "Incorrect username or password"}), 401
+    try:
+        token = login_cognito(username, password)
+    except Exception as e:
+        return jsonify({"Incorrect credentials or user does not exist"}), 401
 
-    token = generate_token(username)
     return jsonify({"token": token})
 
 
@@ -88,12 +115,13 @@ def export():
     strokes = data.get("history", [])
     canvasW = data.get("canvasWidth")
     canvasH = data.get("canvasHeight")
+    roomID = data.get("canvas")
 
     
     if len(strokes) == 0:
         print("Empty List", flush=True)
 
-    photos = render_strokes(strokes, canvasH, canvasW)
+    photos = render_strokes(roomID, canvasH, canvasW)
 
 
     return send_file(
@@ -112,6 +140,8 @@ def stress():
     jsonList = []
 
     pageAmount = 1000
+
+    canvas = -6715537
 
     for page in range(pageAmount):
         # Add each stroke as a separate dictionary
@@ -158,10 +188,23 @@ def stress():
             }
         ]
 
-        # Append each stroke to jsonList
-        jsonList.extend(strokes)
+        db = boto3.client("dynamodb", region_name="ap-southeast-2")
+        table = dunamodb.Table("n12197718-whiteboard-strokes")
 
-    photos = render_strokes(jsonList, canvasH, canvasW)
+        for stroke in strokes:
+            table.put_item(
+                Item{
+                    "roomid": canvas,
+                    "strokenum": stroke.get("drawId"),
+                    "stroke": stroke
+
+                }
+            )
+
+
+
+
+    photos = render_strokes(canvas, canvasH, canvasW)
 
     return send_file(
         photos,
@@ -169,6 +212,47 @@ def stress():
         as_attachment=True,
         download_name="canvas_export.pdf"
     )
+
+@main.route("/senddb", methods=["POST"])
+def send_to_db():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    stroke = data.get("stroke")
+    roomID = data.get("roomid")
+    strokenum = data.get("strokenum")
+
+    db = boto3.client("dynamodb", region_name="ap-southeast-2")
+    table = dynamodb.Table("n12197718-whiteboard-strokes")
+
+    table.put_item(
+        Item={
+            "roomid": roomID,
+            "strokenum": strokenum,
+            "stroke": stroke
+            }
+    )
+
+    return jsonify({"status" "success"}), 200
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

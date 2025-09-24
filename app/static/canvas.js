@@ -140,6 +140,7 @@ let currentStroke = {
 	}
 	stroke = [];
 	history.push(currentStroke);
+	send_to_db(currentStroke, drawNum);
 	console.log(currentStroke);
 	drawNum++;
 });
@@ -209,9 +210,39 @@ function draw_strokes(page){
 		}
 	}
 		ctx.lineWidth = drawSize;
-		ctx.strokeStyle = drawColour;	 
+		ctx.strokeStyle = drawColour;
+
+
 }
 
 function draw_all_pages(strokes){
+	return
+}
+
+
+async function send_to_db(stroke, strokenum){
+	const response = await fetch("/room/senddb", {
+		method: "POST",
+            	headers: {
+                	"Content-Type": "application/json",
+                	"Authorization": `Bearer ${token}`
+            	},
+            	body: JSON.stringify({
+                	stroke: stroke,
+			roomid: roomID,
+			strokenum: strokenum
+
+                })
+        });
+
+	if (!response.ok){
+		throw new Error("Error 500");
+	}
+
+	return
+}
+
+
+function delete_all_s3(){
 	return
 }

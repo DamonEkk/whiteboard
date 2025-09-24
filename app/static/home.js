@@ -7,6 +7,12 @@ document.getElementById("login").addEventListener("submit", async function(e) {
 	let username = document.getElementById("username").value;
 	let password = document.getElementById("password").value;
 
+	login(username, password);
+});
+
+async function login(username, password){
+
+
 	try {
 		let response = await fetch("/users", {
 		    method: "POST",
@@ -51,4 +57,32 @@ document.getElementById("login").addEventListener("submit", async function(e) {
 		window.location.href = "/500";	
 	}
 	
-});
+}
+
+
+document.getElementById("signup").addEventListener("submit", async function(e) {
+
+	e.preventDefault(); // Stops page from refreshing itself
+
+	let username = document.getElementById("username").value;
+	let password = document.getElementById("password").value;
+	let email = document.getElementById("email").value;
+
+	let response = await fetch("/user", {
+	    method: "POST",
+	    headers: {
+		"Content-Type": "application/json"
+	    },
+	    body: JSON.stringify({username, password, email})
+	});
+
+	const data = await response.json()
+	if (!response.ok){
+		// Display error message to user
+		console.log("login failed")
+		return;
+	}
+
+	login(username, password);		
+}
+

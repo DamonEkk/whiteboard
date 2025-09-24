@@ -4,4 +4,5 @@ pymysql
 PyJWT
 pillow
 reportlab
+boto3
 
