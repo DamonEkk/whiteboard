@@ -1,9 +1,11 @@
 services:
   backend:
-    image: 901444280953.dkr.ecr.ap-southeast-2.amazonaws.com/n12197718/whiteboard:latest
+    # image: 901444280953.dkr.ecr.ap-southeast-2.amazonaws.com/n12197718/whiteboard:latest
+    build: .
     container_name: whiteboard
     ports:
       - "5000:5000"
+    command: ["python", "entry.py"]
     depends_on:
       - mariadb
     environment:
@@ -12,6 +14,11 @@ services:
       DB_NAME: mydb
       DB_USER: myuser
       DB_PASSWORD: mypassword
+      AWS_PROFILE: main
+      AWS_DEFAULT_REGION: ap-southeast-2
+    volumes:
+      - /home/damon/.aws:/root/.aws 
+
 
   mariadb:
     image: mariadb:latest
@@ -26,6 +33,9 @@ services:
       - "3306:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
+      
 
 volumes:
   mariadb_data:
+ 
+

@@ -1,5 +1,5 @@
 
-document.getElementById("login").addEventListener("submit", async function(e) {
+document.getElementById("loginBut").addEventListener("click", async function(e) {
 
 	console.log("button hit");
 	e.preventDefault(); // Stops page from refreshing itself
@@ -29,14 +29,17 @@ async function login(username, password){
 			return;
 		}
 
+		
 		const token = data.token;
+		const role = data.role;
 		localStorage.setItem("token", token);
 		console.log("login success");
 
-		const payload = JSON.parse(atob(token.split('.')[1])); 
+		const payload = JSON.parse(atob(token.split('.')[1]));
+		console.log("ROLE = " + role)
 
 		// Add token so we can verify the users role
-		switch (payload.role){
+		switch (role){
 			case "ADMIN":
 				window.location.href = "/adminLogged";
 				break;
@@ -60,7 +63,7 @@ async function login(username, password){
 }
 
 
-document.getElementById("signup").addEventListener("submit", async function(e) {
+document.getElementById("signup").addEventListener("click", async function(e) {
 
 	e.preventDefault(); // Stops page from refreshing itself
 
@@ -79,10 +82,10 @@ document.getElementById("signup").addEventListener("submit", async function(e) {
 	const data = await response.json()
 	if (!response.ok){
 		// Display error message to user
-		console.log("login failed")
+		console.log("signup failed")
 		return;
 	}
 
-	login(username, password);		
-}
+	window.location.href = `/confirmation?user=${username}`;	
+});
 

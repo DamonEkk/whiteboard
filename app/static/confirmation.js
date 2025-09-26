@@ -15,9 +15,16 @@ document.getElementById("confirmation").addEventListener("submit", async functio
 			headers: {"Content-Type": "application/json"},
 			body: JSON.stringify({username, code})
 		});
+
+		const data = await response.json();
+
+		windows.location.hred = `/`
 	}
 
-	const data = await response.json();
+
+	catch (err){
+		console.error(err);
+	}
 
 });
 

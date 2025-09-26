@@ -5,6 +5,7 @@ from .export import *
 import base64
 import random
 import boto3
+import jwt
 
 # The file is all about routing traffic to the correct urls
 # Ai was used for some of the boilery-plate stuff. 
@@ -33,6 +34,11 @@ def canvas():
 
     return render_template("canvas.html", roomID=roomID)
 
+@main.route("/confirmation", methods=["GET"])
+def sendConfirmation():
+    username = request.args.get("username")
+    return render_template("confirmation.html", username=username)
+
 
 @main.route("/user", methods=["POST"])
 def create_user():
@@ -53,7 +59,7 @@ def create_user():
         return jsonify({"Invalid signup"}), 400
 
     # calls confirmation html screen
-    return render_template("confirmation.html", msg=username)
+    return ({"status": "signup worked", "username": username})
 
 @main.route("/confirm", methods=["POST"])
 def confirmation():
@@ -64,7 +70,7 @@ def confirmation():
     code = data.get("code")
     username = data.get("username")
     
-    confirmation_cognito(code, username)
+    confirm_cognito(code, username)
 
     return render_template("home.html")
 
@@ -85,16 +91,19 @@ def login():
     try:
         token = login_cognito(username, password)
     except Exception as e:
-        return jsonify({"Incorrect credentials or user does not exist"}), 401
-
-    return jsonify({"token": token})
+        return jsonify({"error": "Incorrect credentials or user does not exist"}), 401
 
 
+    decoded = jwt.decode(token, options={"verify_signature": False})
+    groups = decoded.get("cognito:groups", [])
+    if "Admin" in groups:
+        role = "ADMIN"
+    elif "Users" in groups:
+        role = "USER"
+    else:
+        role = "GUEST"
 
-@main.route("/room/<username>", methods=["POST"])
-def create_room(username):
-
-    return 0
+    return jsonify({"token": token, "role": role})
 
 
 @main.route("/room/<int:roomNum>", methods=["GET"])
@@ -115,7 +124,7 @@ def export():
     strokes = data.get("history", [])
     canvasW = data.get("canvasWidth")
     canvasH = data.get("canvasHeight")
-    roomID = data.get("canvas")
+    roomID = data.get("roomid")
 
     
     if len(strokes) == 0:
@@ -188,12 +197,12 @@ def stress():
             }
         ]
 
-        db = boto3.client("dynamodb", region_name="ap-southeast-2")
+        db = boto3.resource("dynamodb", region_name="ap-southeast-2")
         table = dunamodb.Table("n12197718-whiteboard-strokes")
 
         for stroke in strokes:
             table.put_item(
-                Item{
+                Item = {
                     "roomid": canvas,
                     "strokenum": stroke.get("drawId"),
                     "stroke": stroke
@@ -215,6 +224,7 @@ def stress():
 
 @main.route("/senddb", methods=["POST"])
 def send_to_db():
+    qutName = "n12197718@qut.edu.au"
     data = request.get_json()
     if not data:
         return jsonify({"error": "Invalid JSON"}), 400
@@ -223,18 +233,23 @@ def send_to_db():
     roomID = data.get("roomid")
     strokenum = data.get("strokenum")
 
-    db = boto3.client("dynamodb", region_name="ap-southeast-2")
-    table = dynamodb.Table("n12197718-whiteboard-strokes")
+    db = boto3.resource("dynamodb", region_name="ap-southeast-2")
+    table = db.Table("n12197718-whiteboard-strokes")
 
     table.put_item(
         Item={
-            "roomid": roomID,
-            "strokenum": strokenum,
-            "stroke": stroke
-            }
+            "qut-username": qutName,
+            "roomID": str(roomID),
+            "strokenum": str(strokenum),
+            "points": stroke.get("points", []),
+            "size": stroke.get("size"),
+            "colour": stroke.get("colour"),
+            "page": stroke.get("page")
+        }
     )
 
-    return jsonify({"status" "success"}), 200
+
+    return jsonify({"status": "success"}), 200
 
 
 

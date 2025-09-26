@@ -19,11 +19,9 @@ URL = "https://cognito-idp.ap-southeast-2.amazonaws.com/ap-southeast-2_aqm66hUpn
 jwks_client = PyJWKClient(URL)
 
 # Stored secretly
-USERPOOL_ID = secrets["USERPOOL_ID"]
-CLIENT_ID = secrets["CLIENT_ID"]
+USERPOOL_ID = secrets["userpool_id"]
+CLIENT_ID = secrets["client_id"]
 cognito_client = boto3.client("cognito-idp", region_name=REGION) # Probs should be const but to late to change things now. 
-# Wrapper for signup - 
-cog_wrapper = CognitoIdentityProviderWrapper(cognito_client, USERPOOL_ID, CLIENT_ID)
 
 
 
@@ -78,36 +76,62 @@ def guest_login():
 
 
 def login_cognito(username, password):
-    resp = cognito_client.initiate_auth(
-        ClientId = CLIENT_ID,
-        AuthFlow='USER_PASSWORD_AUTH',
-        AuthParameters={
-            'USERNAME': username,
-            'PASSWORD': password
-            }
+    try:
+        resp = cognito_client.initiate_auth(
+            ClientId = CLIENT_ID,
+            AuthFlow='USER_PASSWORD_AUTH',
+            AuthParameters={
+                'USERNAME':	username,
+                'PASSWORD': password
+                }
+            )
+        return resp['AuthenticationResult']['IdToken']
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "NotAuthorizedException" and "Temporary password has expired" in e.response['Error']['Message']:
+            cognito_client.admin_set_user_password(
+            UserPoolId=USERPOOL_ID,
+            Username=username,
+            Password="Password123!",
+            Permanent=True
         )
-    return resp['AuthenticationResult']['IdToken']
+        resp = cognito_client.initiate_auth(
+            ClientId = CLIENT_ID,
+            AuthFlow='USER_PASSWORD_AUTH',
+            AuthParameters={
+                'USERNAME':	username,
+                'PASSWORD': "Password123!"
+                }
+            )
+        return resp['AuthenticationResult']['IdToken']
 
 
-# Lotta reference from https://github.com/awsdocs/aws-doc-sdk-examples/blob/main/python/example_code/cognito/scenario_signup_user_with_mfa.py
+# Lotta reference from https://github.com/awsdocs/aws-doc-sdk-examples/blob/main/python/example_code/cognito/scenario_signup_user_with_mfa.py and chatgpt input
 def signup_cognito(username, password, email):
     try:
-        cog_wrapper.sign_up_user(username, password, email)
-        return "Success"
+        response = cognito_client.sign_up(
+            ClientId=CLIENT_ID,
+            Username=username,
+            Password=password,
+            UserAttributes=[{"Name": "email", "Value": email}]
+        )
+        return {"Status": "Success"}
     except Exception as e:
         return {"Error message": str(e)}
 
 
 def confirm_cognito(username, code):
     try:
-        confirmed = cog_wrapper.confirm_user_sign_up(username, code)
-        if confirmed:
-            allocate_group(username)
-            return {"status": "User confirmed"}
-        else:
-            return {"status": "User failed to confirm"}
+        response = cognito_client.confirm_sign_up(
+            ClientId=CLIENT_ID,
+            Username=username,
+            ConfirmationCode=code
+        )
+        allocate_group(username) # Little helper function to change the user role into USER
+        return {"status": "User confirmed"}
+    except cognito_client.exceptions.UserNotFoundException:
+        return {"status": "User not found"}
     except Exception as e:
-        return {"status": str(e)}
+        return {"Error messgae": str(e)}
     
 
 def allocate_group(username):
@@ -133,6 +157,19 @@ def resend_confirmation(username):
     except Exception as e:
         return {"status": str(e)}
 
+def generate_token(payload):
+    token = jwt.encode(payload, current_app.config['SECRET_KEY'], algorithm="RS256")
+    if isinstance(token, bytes):
+        token = token.decode("utf-8")
+    return token
+
+def set_password(usernmame):
+    cognito_client.admin_set_user_password(
+        UserPoolId=USERPOOL_ID,
+        Username=username,
+        Password="Password123!",
+        Permanent=True
+            )
 
         
 

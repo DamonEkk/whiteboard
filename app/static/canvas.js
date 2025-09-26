@@ -125,24 +125,24 @@ ctx.beginPath();
 // Stop Drawing when you let go of mouse.
 canvas.addEventListener("mouseup", () => {
 
-drawing = false;
+	drawing = false;
 
-// For saving keystrokes, used for websockets and undo.
-let currentStroke = {
-		canvas: roomID,
-		// add username here
-		drawId: drawNum,
-		strokeId: generate_stroke_ID(),
-		colour: drawColour,
-		size: drawSize,
-		points: stroke,
-		page: parseInt(currentPage)
-	}
-	stroke = [];
-	history.push(currentStroke);
-	send_to_db(currentStroke, drawNum);
-	console.log(currentStroke);
-	drawNum++;
+	// For saving keystrokes, used for websockets and undo.
+	let currentStroke = {
+			canvas: roomID,
+			// add username here
+			drawId: drawNum,
+			strokeId: generate_stroke_ID(),
+			colour: drawColour,
+			size: drawSize,
+			points: stroke,
+			page: parseInt(currentPage)
+		}
+		stroke = [];
+		history.push(currentStroke);
+		send_to_db(currentStroke, drawNum);
+		console.log(currentStroke);
+		drawNum++;
 });
 
 
@@ -221,7 +221,7 @@ function draw_all_pages(strokes){
 
 
 async function send_to_db(stroke, strokenum){
-	const response = await fetch("/room/senddb", {
+	const response = await fetch("/senddb", {
 		method: "POST",
             	headers: {
                 	"Content-Type": "application/json",
