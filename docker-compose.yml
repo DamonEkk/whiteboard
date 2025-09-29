@@ -20,22 +20,4 @@ services:
       - /home/damon/.aws:/root/.aws 
 
 
-  mariadb:
-    image: mariadb:latest
-    container_name: mariadb
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: mysecretpassword
-      MYSQL_DATABASE: mydb
-      MYSQL_USER: myuser
-      MYSQL_PASSWORD: mypassword
-    ports:
-      - "3306:3306"
-    volumes:
-      - mariadb_data:/var/lib/mysql
-      
-
-volumes:
-  mariadb_data:
  
-
