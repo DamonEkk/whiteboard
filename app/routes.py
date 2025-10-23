@@ -130,13 +130,13 @@ def export():
 
 
 
-    queue_url = os.environ.get("https://sqs.ap-southeast-2.amazonaws.com/901444280953/n12197718-Whiteboard-A3")
+    queue_url = os.environ.get("SQS_QUEUE_URL","https://sqs.ap-southeast-2.amazonaws.com/901444280953/n12197718-Whiteboard-A3")
 
     sqs = boto3.client("sqs", region_name="ap-southeast-2")
     message = {
             "roomID": roomID,
             "canvasH": canvasH,
-            "cavnasW": canvasW
+            "canvasW": canvasW
             }
 
     sqs.send_message(QueueUrl=queue_url, MessageBody=json.dumps(message))
