@@ -6,6 +6,8 @@ import base64
 import random
 import boto3
 import jwt
+import os
+import json
 
 # The file is all about routing traffic to the correct urls
 # Ai was used for some of the boilery-plate stuff. 
@@ -125,6 +127,21 @@ def export():
     canvasW = data.get("canvasWidth")
     canvasH = data.get("canvasHeight")
     roomID = data.get("roomid")
+
+
+
+    queue_url = os.environ.get("https://sqs.ap-southeast-2.amazonaws.com/901444280953/n12197718-Whiteboard-A3")
+
+    sqs = boto3.client("sqs", region_name="ap-southeast-2")
+    message = {
+            "roomID": roomID,
+            "canvasH": canvasH,
+            "cavnasW": canvasW
+            }
+
+    sqs.send_message(QueueUrl=queue_url, MessageBody=json.dumps(message))
+
+    return jsonify({"status": "Export queued"}), 200
 
     
     if len(strokes) == 0:

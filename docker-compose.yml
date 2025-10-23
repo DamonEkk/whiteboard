@@ -1,41 +1,23 @@
 services:
   backend:
-    # image: 901444280953.dkr.ecr.ap-southeast-2.amazonaws.com/n12197718/whiteboard:latest
     build: .
     container_name: whiteboard
     ports:
       - "5000:5000"
     command: ["python", "entry.py"]
-    depends_on:
-      - mariadb
+
     environment:
       DB_HOST: mariadb
       DB_PORT: 3306
       DB_NAME: mydb
       DB_USER: myuser
       DB_PASSWORD: mypassword
+      AWS_DEFAULT_REGION: "ap-southeast-2"
       AWS_PROFILE: main
-      AWS_DEFAULT_REGION: ap-southeast-2
     volumes:
-      - /home/damon/.aws:/root/.aws 
+      - /home/ssm-user/.aws:/root/.aws
 
 
-  mariadb:
-    image: mariadb:latest
-    container_name: mariadb
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: mysecretpassword
-      MYSQL_DATABASE: mydb
-      MYSQL_USER: myuser
-      MYSQL_PASSWORD: mypassword
-    ports:
-      - "3306:3306"
-    volumes:
-      - mariadb_data:/var/lib/mysql
-      
 
-volumes:
-  mariadb_data:
  
 
